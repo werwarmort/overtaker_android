@@ -4,8 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,12 +14,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.overtaker.app.data.model.Task
 import com.overtaker.app.ui.modifiers.defaultBlockSettings
+import java.util.Calendar
 
 @Composable
 fun TaskItem(
     task: Task, 
     onToggle: () -> Unit,
-    onSubtaskToggle: (String) -> Unit
+    onSubtaskToggle: (String) -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     var isExpanded by remember { mutableStateOf(false) }
@@ -30,6 +32,17 @@ fun TaskItem(
         "high" -> colorScheme.secondary
         else -> colorScheme.primary
     }
+
+    val isCompletedToday = if (task.isCompleted && task.completedAt != null) {
+        val cal = Calendar.getInstance()
+        val today = cal.get(Calendar.DAY_OF_YEAR)
+        val currentYear = cal.get(Calendar.YEAR)
+        
+        cal.timeInMillis = task.completedAt
+        today == cal.get(Calendar.DAY_OF_YEAR) && currentYear == cal.get(Calendar.YEAR)
+    } else false
+    
+    val canToggle = !task.isCompleted || isCompletedToday
 
     Column(
         modifier = Modifier
@@ -42,7 +55,7 @@ fun TaskItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                 if (task.subtasks.isNotEmpty()) {
                     IconButton(
                         onClick = { isExpanded = !isExpanded },
@@ -58,6 +71,7 @@ fun TaskItem(
                 Checkbox(
                     checked = task.isCompleted,
                     onCheckedChange = { onToggle() },
+                    enabled = canToggle,
                     colors = CheckboxDefaults.colors(
                         checkedColor = colorScheme.primary,
                         uncheckedColor = colorScheme.primary
@@ -69,11 +83,23 @@ fun TaskItem(
                     color = if (task.isCompleted) colorScheme.onSurface.copy(alpha = 0.6f) else colorScheme.primary
                 )
             }
-            Text(
-                text = "+${task.points}",
-                color = colorScheme.tertiary,
-                style = MaterialTheme.typography.labelLarge
-            )
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (!task.isCompleted) {
+                    IconButton(onClick = onEdit, enabled = task.subgoalId == null) {
+                        Icon(Icons.Default.Edit, contentDescription = null, tint = colorScheme.primary, modifier = Modifier.size(20.dp))
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary, modifier = Modifier.size(20.dp))
+                    }
+                }
+                Text(
+                    text = "+${task.points}",
+                    color = colorScheme.tertiary,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
         }
 
         AnimatedVisibility(visible = isExpanded) {
@@ -87,6 +113,7 @@ fun TaskItem(
                             checked = sub.isCompleted,
                             onCheckedChange = { onSubtaskToggle(sub.id) },
                             modifier = Modifier.size(24.dp),
+                            enabled = !task.isCompleted,
                             colors = CheckboxDefaults.colors(
                                 checkedColor = colorScheme.primary,
                                 uncheckedColor = colorScheme.primary
@@ -103,5 +130,13 @@ fun TaskItem(
                 }
             }
         }
+
+        // Декоративная линия приоритета
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(24.dp)
+                .background(priorityColor)
+        )
     }
 }

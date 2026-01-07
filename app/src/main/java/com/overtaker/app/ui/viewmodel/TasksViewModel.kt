@@ -57,6 +57,17 @@ class TasksViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun updateTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                apiService.updateTask(task.id!!, task)
+                fetchData()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun toggleTask(task: Task) {
         viewModelScope.launch {
             try {

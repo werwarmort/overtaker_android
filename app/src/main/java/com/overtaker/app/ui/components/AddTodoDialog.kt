@@ -13,28 +13,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import com.overtaker.app.data.model.Task
+import com.overtaker.app.data.model.Subtask
 import com.overtaker.app.ui.modifiers.defaultBlockSettings
 
 @Composable
-fun AddTodoDialog(onDismiss: () -> Unit, onSave: (String, Int, String, String, List<String>) -> Unit) {
-    var description by remember { mutableStateOf("") }
-    var points by remember { mutableStateOf("0") }
-    var priority by remember { mutableStateOf("medium") }
-    var type by remember { mutableStateOf("task") }
-    var subtasks by remember { mutableStateOf(listOf<String>()) }
+fun AddTodoDialog(
+    initialTask: Task? = null,
+    onDismiss: () -> Unit, 
+    onSave: (String, Int, String, String, List<Subtask>) -> Unit
+) {
+    var description by remember { mutableStateOf(initialTask?.description ?: "") }
+    var points by remember { mutableStateOf(initialTask?.points?.toString() ?: "0") }
+    var priority by remember { mutableStateOf(initialTask?.priority ?: "medium") }
+    var type by remember { mutableStateOf(initialTask?.type ?: "task") }
+    var subtasks by remember { mutableStateOf(initialTask?.subtasks ?: emptyList()) }
 
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        // Настройка размытия окна (для Android 12+)
         val view = LocalView.current
         DisposableEffect(view) {
             val window = (view.parent as? DialogWindowProvider)?.window
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 window?.let {
                     it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                    it.attributes.blurBehindRadius = 60 // Интенсивность размытия
+                    it.attributes.blurBehindRadius = 60
                 }
             }
             onDispose {}
@@ -50,7 +55,10 @@ fun AddTodoDialog(onDismiss: () -> Unit, onSave: (String, Int, String, String, L
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
-                Text("Создать задачу", style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = if (initialTask == null) "Создать задачу" else "Редактировать", 
+                    style = MaterialTheme.typography.titleLarge
+                )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
@@ -74,23 +82,38 @@ fun AddTodoDialog(onDismiss: () -> Unit, onSave: (String, Int, String, String, L
                 Text("Подзадачи", style = MaterialTheme.typography.titleSmall)
                 subtasks.forEachIndexed { index, subtask ->
                     OutlinedTextField(
-                        value = subtask,
+                        value = subtask.description,
                         onValueChange = {
                             val newList = subtasks.toMutableList()
-                            newList[index] = it
+                            newList[index] = newList[index].copy(description = it)
                             subtasks = newList
                         },
                         modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
                     )
                 }
-                TextButton(onClick = { subtasks = subtasks + "" }) {
+                TextButton(onClick = {
+                    subtasks = subtasks + Subtask(
+                        id = System.currentTimeMillis().toString() + Math.random(),
+                        description = "",
+                        isCompleted = false
+                    )
+                }) {
                     Text("+ Добавить подзадачу")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { onSave(description, points.toIntOrNull() ?: 0, priority, type, subtasks.filter { it.isNotBlank() }); onDismiss() },
+                    onClick = {
+                        onSave(
+                            description, 
+                            points.toIntOrNull() ?: 0, 
+                            priority, 
+                            type, 
+                            subtasks.filter { it.description.isNotBlank() }
+                        )
+                        onDismiss()
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Сохранить")

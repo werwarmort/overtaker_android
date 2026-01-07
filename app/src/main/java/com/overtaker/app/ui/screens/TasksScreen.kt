@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.overtaker.app.data.model.Task
 import com.overtaker.app.ui.components.TaskItem
 import com.overtaker.app.ui.components.AddTodoDialog
 import com.overtaker.app.ui.viewmodel.TasksViewModel
@@ -23,6 +24,7 @@ fun TasksScreen(
 ) {
     var isCompletedExpanded by remember { mutableStateOf(false) }
     var isShowAddDialog by remember { mutableStateOf(false) }
+    var editingTask by remember { mutableStateOf<Task?>(null) }
     
     LaunchedEffect(Unit) {
         registerAddAction { isShowAddDialog = true }
@@ -43,6 +45,11 @@ fun TasksScreen(
                         },
                         onSubtaskToggle = { subId -> 
                             viewModel.toggleSubtask(task, subId)
+                            onUpdate()
+                        },
+                        onEdit = { editingTask = task },
+                        onDelete = { 
+                            viewModel.deleteTask(task.id!!)
                             onUpdate()
                         }
                     )
@@ -81,6 +88,11 @@ fun TasksScreen(
                                 onSubtaskToggle = { subId -> 
                                     viewModel.toggleSubtask(task, subId)
                                     onUpdate()
+                                },
+                                onEdit = { editingTask = task },
+                                onDelete = { 
+                                    viewModel.deleteTask(task.id!!)
+                                    onUpdate()
                                 }
                             )
                         }
@@ -89,11 +101,25 @@ fun TasksScreen(
             }
         }
 
-        if (isShowAddDialog) {
+        if (isShowAddDialog || editingTask != null) {
             AddTodoDialog(
-                onDismiss = { isShowAddDialog = false },
+                initialTask = editingTask,
+                onDismiss = { 
+                    isShowAddDialog = false 
+                    editingTask = null
+                },
                 onSave = { desc, pts, priority, type, subs ->
-                    viewModel.addTask(desc, pts, priority, type, subs)
+                    if (editingTask != null) {
+                        viewModel.updateTask(editingTask!!.copy(
+                            description = desc, 
+                            points = pts, 
+                            priority = priority, 
+                            type = type, 
+                            subtasks = subs
+                        ))
+                    } else {
+                        viewModel.addTask(desc, pts, priority, type, subs.map { it.description })
+                    }
                     onUpdate()
                 }
             )
