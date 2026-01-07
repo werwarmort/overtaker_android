@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -14,11 +15,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.overtaker.app.data.network.SessionManager
 import com.overtaker.app.ui.Screen
+import com.overtaker.app.ui.viewmodel.TasksViewModel
 
 @Composable
 fun MainScreen(onLogout: () -> Unit) {
     val navController = rememberNavController()
+    val context = LocalContext.current
     val items = listOf(
         Screen.Tasks,
         Screen.Goals,
@@ -63,7 +67,7 @@ fun MainScreen(onLogout: () -> Unit) {
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = Screen.Tasks.route, Modifier.padding(innerPadding)) {
-            composable(Screen.Tasks.route) { Box(Modifier.fillMaxSize()) { Text("Экран задач") } }
+            composable(Screen.Tasks.route) { TasksScreen(TasksViewModel(context)) }
             composable(Screen.Goals.route) { Box(Modifier.fillMaxSize()) { Text("Глобальные цели") } }
             composable(Screen.Logs.route) { Box(Modifier.fillMaxSize()) { Text("Логи") } }
             composable(Screen.Analytics.route) { Box(Modifier.fillMaxSize()) { Text("Аналитика") } }
