@@ -24,7 +24,6 @@ fun TasksScreen(
     var isCompletedExpanded by remember { mutableStateOf(false) }
     var isShowAddDialog by remember { mutableStateOf(false) }
     
-    // Регистрируем действие для хедера
     LaunchedEffect(Unit) {
         registerAddAction { isShowAddDialog = true }
     }
@@ -36,10 +35,17 @@ fun TasksScreen(
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(activeTasks) { task ->
-                    TaskItem(task = task, onToggle = {
-                        viewModel.toggleTask(task)
-                        onUpdate()
-                    })
+                    TaskItem(
+                        task = task, 
+                        onToggle = { 
+                            viewModel.toggleTask(task)
+                            onUpdate()
+                        },
+                        onSubtaskToggle = { subId -> 
+                            viewModel.toggleSubtask(task, subId)
+                            onUpdate()
+                        }
+                    )
                 }
 
                 if (completedTasks.isNotEmpty()) {
@@ -66,10 +72,17 @@ fun TasksScreen(
 
                     if (isCompletedExpanded) {
                         items(completedTasks) { task ->
-                            TaskItem(task = task, onToggle = {
-                                viewModel.toggleTask(task)
-                                onUpdate()
-                            })
+                            TaskItem(
+                                task = task, 
+                                onToggle = { 
+                                    viewModel.toggleTask(task)
+                                    onUpdate()
+                                },
+                                onSubtaskToggle = { subId -> 
+                                    viewModel.toggleSubtask(task, subId)
+                                    onUpdate()
+                                }
+                            )
                         }
                     }
                 }

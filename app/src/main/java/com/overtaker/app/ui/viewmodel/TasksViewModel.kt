@@ -70,6 +70,21 @@ class TasksViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun toggleSubtask(task: Task, subtaskId: String) {
+        viewModelScope.launch {
+            try {
+                val updatedSubtasks = task.subtasks.map {
+                    if (it.id == subtaskId) it.copy(isCompleted = !it.isCompleted) else it
+                }
+                val updatedTask = task.copy(subtasks = updatedSubtasks)
+                apiService.updateTask(task.id!!, updatedTask)
+                fetchData()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun deleteTask(id: Long) {
         viewModelScope.launch {
             try {
