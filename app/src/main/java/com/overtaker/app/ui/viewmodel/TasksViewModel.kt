@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.overtaker.app.data.model.Task
+import com.overtaker.app.data.model.Subtask
 import com.overtaker.app.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
@@ -36,29 +37,31 @@ class TasksViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun addTask(description: String, points: Int, priority: String, type: String, subtasks: List<String>) {
+        viewModelScope.launch {
+            try {
+                val newTask = Task(
+                    description = description,
+                    points = points,
+                    priority = priority,
+                    type = type,
+                    isCompleted = false,
+                    createdAt = System.currentTimeMillis(),
+                    subtasks = subtasks.map { Subtask(id = System.currentTimeMillis().toString() + Math.random(), description = it, isCompleted = false) }
+                )
+                apiService.createTask(newTask)
+                fetchData()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun toggleTask(task: Task) {
         viewModelScope.launch {
-            // Логика аналогична вебу: если выполняем, создаем запись в логах (делается на бэке или тут)
-            // На вебе мы создавали Action вручную перед переключением задачи.
-            // Для Android упростим: бэкенд сам создаст лог если мы пришлем нужные поля.
-            // Но для полной совместимости с вебом, мы должны сначала создать Action.
-            
             try {
                 val newStatus = !task.isCompleted
-                val actionId = if (newStatus) System.currentTimeMillis().toString() else null
-                
-                if (newStatus) {
-                    apiService.getActions() // Заглушка или вызов создания Action
-                    // В идеале тут должен быть вызов создания Action, как на вебе.
-                    // Но для начала просто обновим задачу
-                }
-
-                val updatedTask = task.copy(
-                    isCompleted = newStatus,
-                    completedAt = if (newStatus) System.currentTimeMillis() else null,
-                    completedActionId = actionId
-                )
-                
+                val updatedTask = task.copy(isCompleted = newStatus)
                 apiService.updateTask(task.id!!, updatedTask)
                 fetchData()
             } catch (e: Exception) {
