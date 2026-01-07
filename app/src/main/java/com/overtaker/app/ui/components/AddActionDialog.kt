@@ -1,13 +1,17 @@
 package com.overtaker.app.ui.components
 
+import android.os.Build
+import android.view.WindowManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import com.overtaker.app.data.model.Action
 import com.overtaker.app.ui.modifiers.defaultBlockSettings
 
@@ -21,6 +25,18 @@ fun AddActionDialog(initialAction: Action? = null, onDismiss: () -> Unit, onSave
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        val view = LocalView.current
+        DisposableEffect(view) {
+            val window = (view.parent as? DialogWindowProvider)?.window
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                window?.let {
+                    it.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                    it.attributes.blurBehindRadius = 60
+                }
+            }
+            onDispose {}
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f)

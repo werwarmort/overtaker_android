@@ -15,20 +15,18 @@ class TasksViewModel(context: Context) : ViewModel() {
     private val apiService = RetrofitClient.getApiService(context)
 
     var tasks by mutableStateOf<List<Task>>(emptyList())
-    var dayPoints by mutableStateOf(0)
     var isLoading by mutableStateOf(false)
 
     init {
         fetchData()
     }
 
-    fun fetchData() {
+    fun fetchData(onComplete: (() -> Unit)? = null) {
         viewModelScope.launch {
             isLoading = true
             try {
                 tasks = apiService.getTasks()
-                val score = apiService.getScore()
-                dayPoints = score.dayPoints
+                onComplete?.invoke()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -37,7 +35,7 @@ class TasksViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun addTask(description: String, points: Int, priority: String, type: String, subtasks: List<String>) {
+    fun addTask(description: String, points: Int, priority: String, type: String, subtasks: List<Subtask>, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val newTask = Task(
@@ -47,41 +45,41 @@ class TasksViewModel(context: Context) : ViewModel() {
                     type = type,
                     isCompleted = false,
                     createdAt = System.currentTimeMillis(),
-                    subtasks = subtasks.map { Subtask(id = System.currentTimeMillis().toString() + Math.random(), description = it, isCompleted = false) }
+                    subtasks = subtasks
                 )
                 apiService.createTask(newTask)
-                fetchData()
+                fetchData(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun updateTask(task: Task) {
+    fun updateTask(task: Task, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 apiService.updateTask(task.id!!, task)
-                fetchData()
+                fetchData(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun toggleTask(task: Task) {
+    fun toggleTask(task: Task, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val newStatus = !task.isCompleted
                 val updatedTask = task.copy(isCompleted = newStatus)
                 apiService.updateTask(task.id!!, updatedTask)
-                fetchData()
+                fetchData(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun toggleSubtask(task: Task, subtaskId: String) {
+    fun toggleSubtask(task: Task, subtaskId: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val updatedSubtasks = task.subtasks.map {
@@ -89,18 +87,18 @@ class TasksViewModel(context: Context) : ViewModel() {
                 }
                 val updatedTask = task.copy(subtasks = updatedSubtasks)
                 apiService.updateTask(task.id!!, updatedTask)
-                fetchData()
+                fetchData(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun deleteTask(id: Long) {
+    fun deleteTask(id: Long, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 apiService.deleteTask(id)
-                fetchData()
+                fetchData(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

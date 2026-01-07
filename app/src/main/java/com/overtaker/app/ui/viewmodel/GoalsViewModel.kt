@@ -23,11 +23,12 @@ class GoalsViewModel(context: Context) : ViewModel() {
         fetchGoals()
     }
 
-    fun fetchGoals() {
+    fun fetchGoals(onComplete: (() -> Unit)? = null) {
         viewModelScope.launch {
             isLoading = true
             try {
                 goals = apiService.getGoals()
+                onComplete?.invoke()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -36,7 +37,7 @@ class GoalsViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun addGoal(title: String, description: String?, subgoals: List<GoalSubgoal>) {
+    fun addGoal(title: String, description: String?, subgoals: List<GoalSubgoal>, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val newGoal = Goal(
@@ -47,49 +48,48 @@ class GoalsViewModel(context: Context) : ViewModel() {
                     subgoals = subgoals
                 )
                 apiService.createGoal(newGoal)
-                fetchGoals()
+                fetchGoals(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun updateGoal(goal: Goal) {
+    fun updateGoal(goal: Goal, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 apiService.updateGoal(goal.id!!, goal)
-                fetchGoals()
+                fetchGoals(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun deleteGoal(id: Long) {
+    fun deleteGoal(id: Long, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 apiService.deleteGoal(id)
-                fetchGoals()
+                fetchGoals(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun toggleGoal(goal: Goal) {
+    fun toggleGoal(goal: Goal, onComplete: () -> Unit) {
         viewModelScope.launch {
-            updateGoal(goal.copy(isCompleted = !goal.isCompleted))
+            updateGoal(goal.copy(isCompleted = !goal.isCompleted), onComplete)
         }
     }
 
-    fun toggleSubgoal(goal: Goal, subgoal: GoalSubgoal) {
+    fun toggleSubgoal(goal: Goal, subgoal: GoalSubgoal, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val newStatus = !subgoal.isCompleted
                 var actionId = subgoal.completedActionId
 
                 if (newStatus) {
-                    // Если выполняем, создаем запись в логах
                     val newActionId = System.currentTimeMillis().toString()
                     val action = Action(
                         id = newActionId,
@@ -101,7 +101,6 @@ class GoalsViewModel(context: Context) : ViewModel() {
                     apiService.createAction(action)
                     actionId = newActionId
                 } else {
-                    // Если отменяем, удаляем запись
                     if (subgoal.completedActionId != null) {
                         apiService.deleteAction(subgoal.completedActionId)
                         actionId = null
@@ -111,14 +110,14 @@ class GoalsViewModel(context: Context) : ViewModel() {
                 val updatedSubgoals = goal.subgoals.map {
                     if (it.id == subgoal.id) it.copy(isCompleted = newStatus, completedActionId = actionId) else it
                 }
-                updateGoal(goal.copy(subgoals = updatedSubgoals))
+                updateGoal(goal.copy(subgoals = updatedSubgoals), onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun sendToTasks(goal: Goal, subgoal: GoalSubgoal) {
+    fun sendToTasks(goal: Goal, subgoal: GoalSubgoal, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val newTask = Task(
@@ -135,7 +134,7 @@ class GoalsViewModel(context: Context) : ViewModel() {
                 val updatedSubgoals = goal.subgoals.map {
                     if (it.id == subgoal.id) it.copy(isSentToTasks = true) else it
                 }
-                updateGoal(goal.copy(subgoals = updatedSubgoals))
+                updateGoal(goal.copy(subgoals = updatedSubgoals), onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

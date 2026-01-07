@@ -53,8 +53,7 @@ fun LogsScreen(viewModel: ActionsViewModel, onUpdate: () -> Unit, registerAddAct
                         action = action, 
                         onEdit = { editingAction = action },
                         onDelete = { 
-                            viewModel.deleteAction(action.id!!)
-                            onUpdate()
+                            viewModel.deleteAction(action.id!!, onUpdate)
                         }
                     )
                 }
@@ -70,11 +69,10 @@ fun LogsScreen(viewModel: ActionsViewModel, onUpdate: () -> Unit, registerAddAct
                 },
                 onSave = { text, pts, isPenalty ->
                     if (editingAction != null) {
-                        viewModel.updateAction(editingAction!!.id!!, text, pts, isPenalty)
+                        viewModel.updateAction(editingAction!!.id!!, text, pts, isPenalty, onUpdate)
                     } else {
-                        viewModel.addAction(text, pts, isPenalty)
+                        viewModel.addAction(text, pts, isPenalty, onUpdate)
                     }
-                    onUpdate()
                 }
             )
         }

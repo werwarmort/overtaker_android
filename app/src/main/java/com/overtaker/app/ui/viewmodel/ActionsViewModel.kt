@@ -22,11 +22,12 @@ class ActionsViewModel(context: Context) : ViewModel() {
         fetchActions()
     }
 
-    fun fetchActions() {
+    fun fetchActions(onComplete: (() -> Unit)? = null) {
         viewModelScope.launch {
             isLoading = true
             try {
                 actions = apiService.getActions()
+                onComplete?.invoke()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -35,7 +36,7 @@ class ActionsViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun addAction(text: String, points: Int, isPenalty: Boolean) {
+    fun addAction(text: String, points: Int, isPenalty: Boolean, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val action = Action(
@@ -45,14 +46,14 @@ class ActionsViewModel(context: Context) : ViewModel() {
                     createdAt = System.currentTimeMillis()
                 )
                 apiService.createAction(action)
-                fetchActions()
+                fetchActions(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun updateAction(id: String, text: String, points: Int, isPenalty: Boolean) {
+    fun updateAction(id: String, text: String, points: Int, isPenalty: Boolean, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 val updatedAction = Action(
@@ -60,21 +61,21 @@ class ActionsViewModel(context: Context) : ViewModel() {
                     text = text,
                     points = points,
                     isPenalty = isPenalty,
-                    createdAt = System.currentTimeMillis() // Можно сохранять старую дату, если нужно
+                    createdAt = System.currentTimeMillis()
                 )
                 apiService.updateAction(id, updatedAction)
-                fetchActions()
+                fetchActions(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun deleteAction(id: String) {
+    fun deleteAction(id: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
                 apiService.deleteAction(id)
-                fetchActions()
+                fetchActions(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -40,17 +40,14 @@ fun TasksScreen(
                     TaskItem(
                         task = task, 
                         onToggle = { 
-                            viewModel.toggleTask(task)
-                            onUpdate()
+                            viewModel.toggleTask(task, onUpdate)
                         },
                         onSubtaskToggle = { subId -> 
-                            viewModel.toggleSubtask(task, subId)
-                            onUpdate()
+                            viewModel.toggleSubtask(task, subId, onUpdate)
                         },
                         onEdit = { editingTask = task },
                         onDelete = { 
-                            viewModel.deleteTask(task.id!!)
-                            onUpdate()
+                            viewModel.deleteTask(task.id!!, onUpdate)
                         }
                     )
                 }
@@ -82,17 +79,14 @@ fun TasksScreen(
                             TaskItem(
                                 task = task, 
                                 onToggle = { 
-                                    viewModel.toggleTask(task)
-                                    onUpdate()
+                                    viewModel.toggleTask(task, onUpdate)
                                 },
                                 onSubtaskToggle = { subId -> 
-                                    viewModel.toggleSubtask(task, subId)
-                                    onUpdate()
+                                    viewModel.toggleSubtask(task, subId, onUpdate)
                                 },
                                 onEdit = { editingTask = task },
                                 onDelete = { 
-                                    viewModel.deleteTask(task.id!!)
-                                    onUpdate()
+                                    viewModel.deleteTask(task.id!!, onUpdate)
                                 }
                             )
                         }
@@ -116,11 +110,10 @@ fun TasksScreen(
                             priority = priority, 
                             type = type, 
                             subtasks = subs
-                        ))
+                        ), onUpdate)
                     } else {
-                        viewModel.addTask(desc, pts, priority, type, subs.map { it.description })
+                        viewModel.addTask(desc, pts, priority, type, subs, onUpdate)
                     }
-                    onUpdate()
                 }
             )
         }

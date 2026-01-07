@@ -39,11 +39,11 @@ fun GoalsScreen(
                 items(activeGoals) { goal ->
                     GoalItem(
                         goal = goal,
-                        onToggle = { viewModel.toggleGoal(goal); onUpdate() },
-                        onSubgoalToggle = { sub -> viewModel.toggleSubgoal(goal, sub); onUpdate() },
-                        onSendToTasks = { sub -> viewModel.sendToTasks(goal, sub); onUpdate() },
+                        onToggle = { viewModel.toggleGoal(goal, onUpdate) },
+                        onSubgoalToggle = { sub -> viewModel.toggleSubgoal(goal, sub, onUpdate) },
+                        onSendToTasks = { sub -> viewModel.sendToTasks(goal, sub, onUpdate) },
                         onEdit = { editingGoal = goal },
-                        onDelete = { viewModel.deleteGoal(goal.id!!); onUpdate() }
+                        onDelete = { viewModel.deleteGoal(goal.id!!, onUpdate) }
                     )
                 }
 
@@ -73,11 +73,11 @@ fun GoalsScreen(
                         items(completedGoals) { goal ->
                             GoalItem(
                                 goal = goal,
-                                onToggle = { viewModel.toggleGoal(goal); onUpdate() },
-                                onSubgoalToggle = { sub -> viewModel.toggleSubgoal(goal, sub); onUpdate() },
-                                onSendToTasks = { sub -> viewModel.sendToTasks(goal, sub); onUpdate() },
+                                onToggle = { viewModel.toggleGoal(goal, onUpdate) },
+                                onSubgoalToggle = { sub -> viewModel.toggleSubgoal(goal, sub, onUpdate) },
+                                onSendToTasks = { sub -> viewModel.sendToTasks(goal, sub, onUpdate) },
                                 onEdit = { editingGoal = goal },
-                                onDelete = { viewModel.deleteGoal(goal.id!!); onUpdate() }
+                                onDelete = { viewModel.deleteGoal(goal.id!!, onUpdate) }
                             )
                         }
                     }
@@ -94,11 +94,10 @@ fun GoalsScreen(
                 },
                 onSave = { title, subgoals ->
                     if (editingGoal != null) {
-                        viewModel.updateGoal(editingGoal!!.copy(title = title, subgoals = subgoals))
+                        viewModel.updateGoal(editingGoal!!.copy(title = title, subgoals = subgoals), onUpdate)
                     } else {
-                        viewModel.addGoal(title, null, subgoals)
+                        viewModel.addGoal(title, null, subgoals, onUpdate)
                     }
-                    onUpdate()
                 }
             )
         }
