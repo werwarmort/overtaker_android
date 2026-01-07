@@ -16,36 +16,30 @@ import com.overtaker.app.ui.components.AddTodoDialog
 import com.overtaker.app.ui.viewmodel.TasksViewModel
 
 @Composable
-fun TasksScreen(viewModel: TasksViewModel) {
+fun TasksScreen(
+    viewModel: TasksViewModel, 
+    onUpdate: () -> Unit,
+    registerAddAction: (() -> Unit) -> Unit
+) {
     var isCompletedExpanded by remember { mutableStateOf(false) }
     var isShowAddDialog by remember { mutableStateOf(false) }
+    
+    // Регистрируем действие для хедера
+    LaunchedEffect(Unit) {
+        registerAddAction { isShowAddDialog = true }
+    }
+
     val activeTasks = viewModel.tasks.filter { !it.isCompleted }
     val completedTasks = viewModel.tasks.filter { it.isCompleted }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Баллы за день: ${viewModel.dayPoints}",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                FloatingActionButton(
-                    onClick = { isShowAddDialog = true },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Добавить")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(activeTasks) { task ->
-                    TaskItem(task = task, onToggle = { viewModel.toggleTask(task) })
+                    TaskItem(task = task, onToggle = {
+                        viewModel.toggleTask(task)
+                        onUpdate()
+                    })
                 }
 
                 if (completedTasks.isNotEmpty()) {
@@ -72,7 +66,10 @@ fun TasksScreen(viewModel: TasksViewModel) {
 
                     if (isCompletedExpanded) {
                         items(completedTasks) { task ->
-                            TaskItem(task = task, onToggle = { viewModel.toggleTask(task) })
+                            TaskItem(task = task, onToggle = {
+                                viewModel.toggleTask(task)
+                                onUpdate()
+                            })
                         }
                     }
                 }
@@ -84,6 +81,7 @@ fun TasksScreen(viewModel: TasksViewModel) {
                 onDismiss = { isShowAddDialog = false },
                 onSave = { desc, pts, priority, type, subs ->
                     viewModel.addTask(desc, pts, priority, type, subs)
+                    onUpdate()
                 }
             )
         }

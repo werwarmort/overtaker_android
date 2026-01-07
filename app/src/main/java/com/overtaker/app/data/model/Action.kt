@@ -15,5 +15,6 @@ data class Action(
 @Serializable
 data class ScoreResponse(
     val dayPoints: Int,
-    val weekPoints: Int
+    val weekPoints: Int,
+    val seasonPoints: Int
 )
