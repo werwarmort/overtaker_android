@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.overtaker.app.ui.Screen
 import com.overtaker.app.ui.viewmodel.TasksViewModel
 import com.overtaker.app.ui.viewmodel.GoalsViewModel
+import com.overtaker.app.ui.viewmodel.ActionsViewModel
 import com.overtaker.app.ui.viewmodel.ScoreViewModel
 import com.overtaker.app.ui.components.GlobalHeader
 
@@ -106,17 +107,13 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                     )
                 }
                 composable(Screen.Logs.route) { 
-                    Box(Modifier.fillMaxSize()) {
-                        LaunchedEffect(Unit) { onAddClickAction = null }
-                        Text("Логи") 
-                    } 
+                    LogsScreen(
+                        viewModel = remember { ActionsViewModel(context) },
+                        onUpdate = { scoreViewModel.fetchScore() },
+                        registerAddAction = { onAddClickAction = it }
+                    )
                 }
-                composable(Screen.Analytics.route) { 
-                    Box(Modifier.fillMaxSize()) {
-                        LaunchedEffect(Unit) { onAddClickAction = null }
-                        Text("Аналитика") 
-                    }
-                }
+                composable(Screen.Analytics.route) { Box(Modifier.fillMaxSize()) { Text("Аналитика") } }
                 composable(Screen.Account.route) { 
                     AccountScreen(
                         onLogout = onLogout, 
