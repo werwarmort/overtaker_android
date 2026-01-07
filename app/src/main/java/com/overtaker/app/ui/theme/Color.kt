@@ -2,18 +2,15 @@ package com.overtaker.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light Theme Colors
-val LightPrimary = Color(0xFF00162B)
-val LightSecondary = Color(0xFFCC1E4A)
-val LightBackground = Color(0xFF96A0A0)
-val LightGreen = Color(0xFF119511)
+// Базовые HEX-коды (аналог ваших переменных в SCSS)
+val OvertakerDarkBlue = Color(0xFF00162B)
+val OvertakerYellow = Color(0xFFFFC906)
+val OvertakerRed = Color(0xFFCC1E4A)
+val OvertakerGreenLight = Color(0xFF2CD32C)
+val OvertakerGreenDark = Color(0xFF119511)
+val OvertakerWhite = Color(0xFFFFFFFF)
+val OvertakerGrey = Color(0xFFA0A0A0)
 
-// Dark Theme Colors
-val DarkPrimary = Color(0xFFFFC906)
-val DarkSecondary = Color(0xFFCC1E4A)
-val DarkBackground = Color(0xFF00162B)
-val DarkGreen = Color(0xFF2CD32C)
-
-// Shared
-val BlockBgDark = Color(0x1AFFFFFF) // 10% white
-val BorderColor = Color(0x66A0A0A0) // 40% grey
+// Прозрачные варианты для блоков
+val BlockBackgroundAlpha = 0.5f
+val BorderAlpha = 0.4f

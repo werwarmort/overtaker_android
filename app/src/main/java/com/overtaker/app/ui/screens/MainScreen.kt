@@ -15,12 +15,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.overtaker.app.data.network.SessionManager
 import com.overtaker.app.ui.Screen
 import com.overtaker.app.ui.viewmodel.TasksViewModel
 
 @Composable
-fun MainScreen(onLogout: () -> Unit) {
+fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boolean) -> Unit) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val items = listOf(
@@ -71,7 +70,13 @@ fun MainScreen(onLogout: () -> Unit) {
             composable(Screen.Goals.route) { Box(Modifier.fillMaxSize()) { Text("Глобальные цели") } }
             composable(Screen.Logs.route) { Box(Modifier.fillMaxSize()) { Text("Логи") } }
             composable(Screen.Analytics.route) { Box(Modifier.fillMaxSize()) { Text("Аналитика") } }
-            composable(Screen.Account.route) { AccountScreen(onLogout) }
+            composable(Screen.Account.route) { 
+                AccountScreen(
+                    onLogout = onLogout, 
+                    isDarkTheme = isDarkTheme, 
+                    onThemeChange = onThemeChange
+                ) 
+            }
         }
     }
 }

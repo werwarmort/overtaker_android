@@ -8,24 +8,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.overtaker.app.data.network.SessionManager
+import com.overtaker.app.ui.modifiers.defaultBlockSettings
 
 @Composable
-fun AccountScreen(onLogout: () -> Unit) {
+fun AccountScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boolean) -> Unit) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Аккаунт", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(32.dp))
+        Text("Настройки аккаунта", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 32.dp))
+        
+        // Блок переключения темы
+        Row(
+            modifier = Modifier.fillMaxWidth().defaultBlockSettings(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Темная тема", style = MaterialTheme.typography.bodyLarge)
+            Switch(
+                checked = isDarkTheme,
+                onCheckedChange = { onThemeChange(it) }
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
         Button(
             onClick = {
                 sessionManager.clearAuthToken()
                 onLogout()
             },
+            modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
             Text("Выйти из аккаунта")

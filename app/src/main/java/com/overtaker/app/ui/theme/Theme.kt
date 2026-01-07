@@ -6,19 +6,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimary,
-    secondary = DarkSecondary,
-    background = DarkBackground,
-    surface = BlockBgDark,
-    error = DarkSecondary
+    primary = OvertakerYellow,
+    secondary = OvertakerRed,
+    tertiary = OvertakerGreenLight,
+    background = OvertakerDarkBlue,
+    surface = OvertakerDarkBlue,
+    onPrimary = Color.Black,
+    onBackground = OvertakerWhite,
+    onSurface = OvertakerWhite,
+    error = OvertakerRed
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = LightPrimary,
-    secondary = LightSecondary,
-    background = LightBackground,
-    surface = Color.White,
-    error = LightSecondary
+    primary = OvertakerDarkBlue,
+    secondary = OvertakerRed,
+    tertiary = OvertakerGreenDark,
+    background = OvertakerWhite,
+    surface = OvertakerWhite,
+    onPrimary = OvertakerWhite,
+    onBackground = OvertakerDarkBlue,
+    onSurface = OvertakerDarkBlue,
+    error = OvertakerRed
 )
 
 @Composable

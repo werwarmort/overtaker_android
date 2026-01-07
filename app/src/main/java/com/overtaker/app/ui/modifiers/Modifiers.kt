@@ -9,11 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.overtaker.app.ui.theme.BorderColor
+import com.overtaker.app.ui.theme.OvertakerGrey
+import com.overtaker.app.ui.theme.BorderAlpha
 
 @Composable
 fun Modifier.defaultBlockSettings(): Modifier = this
     .clip(RoundedCornerShape(12.dp))
     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
-    .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+    .border(1.dp, OvertakerGrey.copy(alpha = BorderAlpha), RoundedCornerShape(12.dp))
     .padding(16.dp)

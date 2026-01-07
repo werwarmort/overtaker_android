@@ -3,6 +3,7 @@ package com.overtaker.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,7 +19,10 @@ class MainActivity : ComponentActivity() {
         val sessionManager = SessionManager(this)
 
         setContent {
-            OvertakerTheme {
+            // Глобальное состояние темы
+            var isDarkTheme by remember { mutableStateOf(sessionManager.isDarkTheme()) }
+            
+            OvertakerTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
                 val startDestination = if (sessionManager.fetchAuthToken() != null) "main" else "auth"
 
@@ -31,11 +35,18 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable("main") {
-                        MainScreen(onLogout = {
-                            navController.navigate("auth") {
-                                popUpTo("main") { inclusive = true }
+                        MainScreen(
+                            onLogout = {
+                                navController.navigate("auth") {
+                                    popUpTo("main") { inclusive = true }
+                                }
+                            },
+                            isDarkTheme = isDarkTheme,
+                            onThemeChange = { 
+                                isDarkTheme = it
+                                sessionManager.saveTheme(it)
                             }
-                        })
+                        )
                     }
                 }
             }
