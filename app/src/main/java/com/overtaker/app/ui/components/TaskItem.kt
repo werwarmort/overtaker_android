@@ -31,9 +31,9 @@ fun TaskItem(
     var isExpanded by remember { mutableStateOf(false) }
     
     val priorityColor = when (task.priority) {
-        "low" -> colorScheme.tertiary
-        "high" -> colorScheme.secondary
-        else -> colorScheme.primary
+        "low" -> Color(0xFF2CD32C)
+        "high" -> Color(0xFFCC1E4A)
+        else -> Color(0xFFFFC906)
     }
 
     val isCompletedToday = if (task.isCompleted && task.completedAt != null) {
@@ -46,117 +46,108 @@ fun TaskItem(
     val canToggle = !task.isCompleted || isCompletedToday
     val isLinkedToGoal = task.subgoalId != null
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .defaultBlockSettings()
+            .defaultBlockSettings(borderColor = priorityColor) // Красим бордер в цвет приоритета
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                if (task.subtasks.isNotEmpty()) {
-                    IconButton(
-                        onClick = { isExpanded = !isExpanded },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = colorScheme.primary
-                        )
-                    }
-                }
-                Checkbox(
-                    checked = task.isCompleted,
-                    onCheckedChange = { onToggle() },
-                    enabled = canToggle,
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = colorScheme.primary,
-                        uncheckedColor = colorScheme.primary,
-                        disabledCheckedColor = colorScheme.primary.copy(alpha = 0.5f),
-                        disabledUncheckedColor = colorScheme.primary.copy(alpha = 0.5f)
-                    )
-                )
-                Text(
-                    text = task.description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (task.isCompleted) colorScheme.primary.copy(alpha = 0.6f) else colorScheme.primary
-                )
-            }
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (!task.isCompleted) {
-                    IconButton(
-                        onClick = {
-                            if (isLinkedToGoal) {
-                                Toast.makeText(
-                                    context, 
-                                    "Редактирование доступно в разделе целей если вернуть подцель обратно в раздел целей", 
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            } else {
-                                onEdit()
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit, 
-                            contentDescription = null, 
-                            tint = if (isLinkedToGoal) Color.Gray else colorScheme.primary, 
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary, modifier = Modifier.size(20.dp))
-                    }
-                }
-                Text(
-                    text = "+${task.points}",
-                    color = colorScheme.tertiary,
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
-
-        AnimatedVisibility(visible = isExpanded) {
-            Column(modifier = Modifier.padding(start = 32.dp, top = 8.dp)) {
-                task.subtasks.forEach { sub ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = sub.isCompleted,
-                            onCheckedChange = { onSubtaskToggle(sub.id) },
-                            modifier = Modifier.size(24.dp),
-                            enabled = !task.isCompleted,
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = colorScheme.primary,
-                                uncheckedColor = colorScheme.primary
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = sub.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 14.sp,
-                            color = if (sub.isCompleted) colorScheme.primary.copy(alpha = 0.6f) else colorScheme.primary
-                        )
-                    }
-                }
-            }
-        }
-
+        // Тонкая акцентная полоска слева (как в вебе border-left: 6px)
         Box(
             modifier = Modifier
-                .width(4.dp)
-                .height(24.dp)
-                .background(priorityColor)
+                .align(Alignment.CenterStart)
+                .width(6.dp)
+                .fillMaxHeight()
+                .padding(vertical = 8.dp) // Чуть короче высоты карточки для изящности
+                .background(priorityColor, androidx.compose.foundation.shape.CircleShape)
         )
+
+        Column(modifier = Modifier.fillMaxWidth().padding(start = 12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    if (task.subtasks.isNotEmpty()) {
+                        IconButton(
+                            onClick = { isExpanded = !isExpanded },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = colorScheme.primary
+                            )
+                        }
+                    }
+                    OvertakerCheckbox(
+                        checked = task.isCompleted,
+                        onCheckedChange = { onToggle() },
+                        enabled = canToggle
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = task.description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (task.isCompleted) colorScheme.primary.copy(alpha = 0.6f) else colorScheme.primary
+                    )
+                }
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!task.isCompleted) {
+                        IconButton(
+                            onClick = {
+                                if (isLinkedToGoal) {
+                                    Toast.makeText(context, "Редактирование доступно в разделе целей", Toast.LENGTH_LONG).show()
+                                } else {
+                                    onEdit()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit, 
+                                contentDescription = null, 
+                                tint = if (isLinkedToGoal) Color.Gray else colorScheme.primary, 
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        IconButton(onClick = onDelete) {
+                            Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary, modifier = Modifier.size(20.dp))
+                        }
+                    }
+                    Text(
+                        text = "+${task.points}",
+                        color = colorScheme.tertiary,
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+
+            AnimatedVisibility(visible = isExpanded) {
+                Column(modifier = Modifier.padding(start = 32.dp, top = 8.dp, bottom = 8.dp)) {
+                    task.subtasks.forEach { sub ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OvertakerCheckbox(
+                                checked = sub.isCompleted,
+                                onCheckedChange = { onSubtaskToggle(sub.id) },
+                                enabled = !task.isCompleted
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = sub.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 14.sp,
+                                color = if (sub.isCompleted) colorScheme.primary.copy(alpha = 0.6f) else colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

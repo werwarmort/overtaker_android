@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -12,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,11 +34,13 @@ fun GlobalHeader(day: Int, week: Int, season: Int, onAddClick: (() -> Unit)? = n
         StatBox(label = "сезон", value = season, modifier = Modifier.weight(1f))
         
         if (onAddClick != null) {
-            IconButton(
-                onClick = { onAddClick() },
+            Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable { onAddClick() },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Add,
@@ -68,13 +72,13 @@ fun StatBox(label: String, value: Int, modifier: Modifier = Modifier) {
             .clickable { showHint = true },
         contentAlignment = Alignment.Center
     ) {
-        Crossfade(targetState = showHint) { isHintMode ->
-            if (isHintMode) {
+        Crossfade(targetState = showHint || value == 0) { isLabelMode ->
+            if (isLabelMode) {
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    color = if (value == 0) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) else MaterialTheme.colorScheme.primary,
+                    fontWeight = if (value == 0) FontWeight.Normal else FontWeight.Bold
                 )
             } else {
                 Text(

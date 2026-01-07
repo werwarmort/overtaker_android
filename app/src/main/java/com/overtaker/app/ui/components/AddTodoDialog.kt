@@ -17,6 +17,7 @@ import com.overtaker.app.data.model.Task
 import com.overtaker.app.data.model.Subtask
 import com.overtaker.app.ui.modifiers.defaultBlockSettings
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTodoDialog(
     initialTask: Task? = null,
@@ -78,6 +79,20 @@ fun AddTodoDialog(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+                
+                // Выбор срочности
+                Text("Срочность", style = MaterialTheme.typography.titleSmall)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("low" to "Низкая", "medium" to "Средняя", "high" to "Высокая").forEach { (id, label) ->
+                        FilterChip(
+                            selected = priority == id,
+                            onClick = { priority = id },
+                            label = { Text(label) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text("Подзадачи", style = MaterialTheme.typography.titleSmall)
                 subtasks.forEachIndexed { index, subtask ->
@@ -93,7 +108,7 @@ fun AddTodoDialog(
                 }
                 TextButton(onClick = {
                     subtasks = subtasks + Subtask(
-                        id = System.currentTimeMillis().toString() + Math.random(),
+                        id = System.currentTimeMillis().toString() + Math.random().toString(),
                         description = "",
                         isCompleted = false
                     )

@@ -46,11 +46,11 @@ fun GoalItem(
                         tint = colorScheme.primary
                     )
                 }
-                Checkbox(
+                OvertakerCheckbox(
                     checked = goal.isCompleted,
-                    onCheckedChange = { onToggle() },
-                    colors = CheckboxDefaults.colors(checkedColor = colorScheme.primary)
+                    onCheckedChange = { onToggle() }
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = goal.title,
                     style = MaterialTheme.typography.titleMedium,
@@ -77,12 +77,12 @@ fun GoalItem(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                            Checkbox(
+                            OvertakerCheckbox(
                                 checked = sub.isCompleted,
                                 onCheckedChange = { onSubgoalToggle(sub) },
-                                enabled = !sub.isSentToTasks,
-                                colors = CheckboxDefaults.colors(checkedColor = colorScheme.primary)
+                                enabled = !sub.isSentToTasks
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = sub.description,
                                 style = MaterialTheme.typography.bodyMedium,
