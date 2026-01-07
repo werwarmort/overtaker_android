@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.overtaker.app.ui.Screen
 import com.overtaker.app.ui.viewmodel.TasksViewModel
+import com.overtaker.app.ui.viewmodel.GoalsViewModel
 import com.overtaker.app.ui.viewmodel.ScoreViewModel
 import com.overtaker.app.ui.components.GlobalHeader
 
@@ -25,7 +26,6 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
     val context = LocalContext.current
     val scoreViewModel = remember { ScoreViewModel(context) }
     
-    // Принудительно загружаем баллы при открытии главного экрана
     LaunchedEffect(Unit) {
         scoreViewModel.fetchScore()
     }
@@ -98,11 +98,12 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                         registerAddAction = { onAddClickAction = it }
                     )
                 }
-                composable(Screen.Goals.route) { 
-                    Box(Modifier.fillMaxSize()) {
-                        LaunchedEffect(Unit) { onAddClickAction = null }
-                        Text("Глобальные цели") 
-                    } 
+                composable(Screen.Goals.route) {
+                    GoalsScreen(
+                        viewModel = remember { GoalsViewModel(context) },
+                        onUpdate = { scoreViewModel.fetchScore() },
+                        registerAddAction = { onAddClickAction = it }
+                    )
                 }
                 composable(Screen.Logs.route) { 
                     Box(Modifier.fillMaxSize()) {

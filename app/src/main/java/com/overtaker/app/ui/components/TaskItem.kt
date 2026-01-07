@@ -1,5 +1,6 @@
 package com.overtaker.app.ui.components
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.overtaker.app.data.model.Task
@@ -25,6 +27,7 @@ fun TaskItem(
     onDelete: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val context = LocalContext.current
     var isExpanded by remember { mutableStateOf(false) }
     
     val priorityColor = when (task.priority) {
@@ -36,13 +39,12 @@ fun TaskItem(
     val isCompletedToday = if (task.isCompleted && task.completedAt != null) {
         val cal = Calendar.getInstance()
         val today = cal.get(Calendar.DAY_OF_YEAR)
-        val currentYear = cal.get(Calendar.YEAR)
-        
         cal.timeInMillis = task.completedAt
-        today == cal.get(Calendar.DAY_OF_YEAR) && currentYear == cal.get(Calendar.YEAR)
+        today == cal.get(Calendar.DAY_OF_YEAR)
     } else false
     
     val canToggle = !task.isCompleted || isCompletedToday
+    val isLinkedToGoal = task.subgoalId != null
 
     Column(
         modifier = Modifier
@@ -74,20 +76,39 @@ fun TaskItem(
                     enabled = canToggle,
                     colors = CheckboxDefaults.colors(
                         checkedColor = colorScheme.primary,
-                        uncheckedColor = colorScheme.primary
+                        uncheckedColor = colorScheme.primary,
+                        disabledCheckedColor = colorScheme.primary.copy(alpha = 0.5f),
+                        disabledUncheckedColor = colorScheme.primary.copy(alpha = 0.5f)
                     )
                 )
                 Text(
                     text = task.description,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (task.isCompleted) colorScheme.onSurface.copy(alpha = 0.6f) else colorScheme.primary
+                    color = if (task.isCompleted) colorScheme.primary.copy(alpha = 0.6f) else colorScheme.primary
                 )
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (!task.isCompleted) {
-                    IconButton(onClick = onEdit, enabled = task.subgoalId == null) {
-                        Icon(Icons.Default.Edit, contentDescription = null, tint = colorScheme.primary, modifier = Modifier.size(20.dp))
+                    IconButton(
+                        onClick = {
+                            if (isLinkedToGoal) {
+                                Toast.makeText(
+                                    context, 
+                                    "Редактирование доступно в разделе целей если вернуть подцель обратно в раздел целей", 
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                onEdit()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit, 
+                            contentDescription = null, 
+                            tint = if (isLinkedToGoal) Color.Gray else colorScheme.primary, 
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                     IconButton(onClick = onDelete) {
                         Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary, modifier = Modifier.size(20.dp))
@@ -124,14 +145,13 @@ fun TaskItem(
                             text = sub.description,
                             style = MaterialTheme.typography.bodyMedium,
                             fontSize = 14.sp,
-                            color = if (sub.isCompleted) colorScheme.onSurface.copy(alpha = 0.6f) else colorScheme.primary
+                            color = if (sub.isCompleted) colorScheme.primary.copy(alpha = 0.6f) else colorScheme.primary
                         )
                     }
                 }
             }
         }
 
-        // Декоративная линия приоритета
         Box(
             modifier = Modifier
                 .width(4.dp)
