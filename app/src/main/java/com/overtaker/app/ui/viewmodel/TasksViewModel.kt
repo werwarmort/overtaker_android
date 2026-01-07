@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.overtaker.app.data.model.Task
 import com.overtaker.app.data.model.Subtask
+import com.overtaker.app.data.model.Action
 import com.overtaker.app.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
@@ -70,8 +71,37 @@ class TasksViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             try {
                 val newStatus = !task.isCompleted
-                val updatedTask = task.copy(isCompleted = newStatus)
+                var actionId = task.completedActionId
+
+                if (newStatus) {
+                    // 1. Создаем лог на бэкенде
+                    val newActionId = System.currentTimeMillis().toString()
+                    val action = Action(
+                        id = newActionId,
+                        text = "Выполнена задача: ${task.description}",
+                        points = task.points,
+                        isPenalty = false,
+                        createdAt = System.currentTimeMillis(),
+                        todoId = task.id.toString()
+                    )
+                    apiService.createAction(action)
+                    actionId = newActionId
+                } else {
+                    // 2. Удаляем лог если отменяем выполнение
+                    if (task.completedActionId != null) {
+                        apiService.deleteAction(task.completedActionId)
+                        actionId = null
+                    }
+                }
+
+                // 3. Обновляем саму задачу
+                val updatedTask = task.copy(
+                    isCompleted = newStatus,
+                    completedAt = if (newStatus) System.currentTimeMillis() else null,
+                    completedActionId = actionId
+                )
                 apiService.updateTask(task.id!!, updatedTask)
+                
                 fetchData(onComplete)
             } catch (e: Exception) {
                 e.printStackTrace()
