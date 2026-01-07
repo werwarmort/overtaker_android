@@ -25,7 +25,7 @@ fun AddTodoDialog(
     onSave: (String, Int, String, String, List<Subtask>) -> Unit
 ) {
     var description by remember { mutableStateOf(initialTask?.description ?: "") }
-    var points by remember { mutableStateOf(initialTask?.points?.toString() ?: "0") }
+    var points by remember { mutableStateOf(initialTask?.points?.toString() ?: "") }
     var priority by remember { mutableStateOf(initialTask?.priority ?: "medium") }
     var type by remember { mutableStateOf(initialTask?.type ?: "task") }
     var subtasks by remember { mutableStateOf(initialTask?.subtasks ?: emptyList()) }
@@ -73,14 +73,15 @@ fun AddTodoDialog(
 
                 OutlinedTextField(
                     value = points,
-                    onValueChange = { points = it },
+                    onValueChange = { newValue ->
+                        points = if (newValue.startsWith("0") && newValue.length > 1) newValue.substring(1) else newValue
+                    },
                     label = { Text("Баллы") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Выбор срочности
                 Text("Срочность", style = MaterialTheme.typography.titleSmall)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("low" to "Низкая", "medium" to "Средняя", "high" to "Высокая").forEach { (id, label) ->

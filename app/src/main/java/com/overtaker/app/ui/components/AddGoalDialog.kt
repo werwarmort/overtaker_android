@@ -84,9 +84,10 @@ fun AddGoalDialog(
                         )
                         OutlinedTextField(
                             value = sub.points.toString(),
-                            onValueChange = {
+                            onValueChange = { newValue ->
+                                val cleanValue = if (newValue.startsWith("0") && newValue.length > 1) newValue.substring(1) else newValue
                                 val newList = subgoals.toMutableList()
-                                newList[index] = newList[index].copy(points = it.toIntOrNull() ?: 0)
+                                newList[index] = newList[index].copy(points = cleanValue.toIntOrNull() ?: 0)
                                 subgoals = newList
                             },
                             label = { Text("Баллы") },
@@ -96,7 +97,7 @@ fun AddGoalDialog(
                 }
                 TextButton(onClick = {
                     subgoals = subgoals + GoalSubgoal(
-                        id = System.currentTimeMillis().toString() + Math.random(),
+                        id = System.currentTimeMillis().toString() + Math.random().toString(),
                         description = "",
                         isCompleted = false,
                         isSentToTasks = false,

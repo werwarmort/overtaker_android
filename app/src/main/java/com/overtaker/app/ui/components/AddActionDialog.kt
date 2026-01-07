@@ -18,7 +18,7 @@ import com.overtaker.app.ui.modifiers.defaultBlockSettings
 @Composable
 fun AddActionDialog(initialAction: Action? = null, onDismiss: () -> Unit, onSave: (String, Int, Boolean) -> Unit) {
     var text by remember { mutableStateOf(initialAction?.text ?: "") }
-    var points by remember { mutableStateOf(initialAction?.points?.toString() ?: "0") }
+    var points by remember { mutableStateOf(initialAction?.points?.toString() ?: "") }
     var isPenalty by remember { mutableStateOf(initialAction?.isPenalty ?: false) }
 
     Dialog(
@@ -61,7 +61,14 @@ fun AddActionDialog(initialAction: Action? = null, onDismiss: () -> Unit, onSave
                 ) {
                     OutlinedTextField(
                         value = points,
-                        onValueChange = { points = it },
+                        onValueChange = { newValue ->
+                            // Если вводим число и текущее значение 0 или пусто, заменяем его
+                            points = if (newValue.startsWith("0") && newValue.length > 1) {
+                                newValue.substring(1)
+                            } else {
+                                newValue
+                            }
+                        },
                         label = { Text("Баллы") },
                         modifier = Modifier.weight(1f)
                     )
