@@ -18,6 +18,7 @@ import com.overtaker.app.ui.Screen
 import com.overtaker.app.ui.viewmodel.TasksViewModel
 import com.overtaker.app.ui.viewmodel.GoalsViewModel
 import com.overtaker.app.ui.viewmodel.ActionsViewModel
+import com.overtaker.app.ui.viewmodel.AnalyticsViewModel
 import com.overtaker.app.ui.viewmodel.ScoreViewModel
 import com.overtaker.app.ui.components.GlobalHeader
 
@@ -113,7 +114,9 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                         registerAddAction = { onAddClickAction = it }
                     )
                 }
-                composable(Screen.Analytics.route) { Box(Modifier.fillMaxSize()) { Text("Аналитика") } }
+                composable(Screen.Analytics.route) {
+                    AnalyticsScreen(viewModel = remember { AnalyticsViewModel(context) })
+                }
                 composable(Screen.Account.route) { 
                     AccountScreen(
                         onLogout = onLogout, 
