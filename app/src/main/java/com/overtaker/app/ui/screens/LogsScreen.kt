@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.overtaker.app.data.model.Action
 import com.overtaker.app.ui.components.ActionItem
 import com.overtaker.app.ui.components.AddActionDialog
 import com.overtaker.app.ui.viewmodel.ActionsViewModel
@@ -17,6 +18,7 @@ import com.overtaker.app.ui.viewmodel.ActionsViewModel
 @Composable
 fun LogsScreen(viewModel: ActionsViewModel, onUpdate: () -> Unit, registerAddAction: (() -> Unit) -> Unit) {
     var isShowAddDialog by remember { mutableStateOf(false) }
+    var editingAction by remember { mutableStateOf<Action?>(null) }
     val groupedActions = viewModel.getGroupedActions()
 
     LaunchedEffect(Unit) {
@@ -47,19 +49,31 @@ fun LogsScreen(viewModel: ActionsViewModel, onUpdate: () -> Unit, registerAddAct
                 }
 
                 items(actions) { action ->
-                    ActionItem(action = action, onDelete = { 
-                        viewModel.deleteAction(action.id!!) 
-                        onUpdate()
-                    })
+                    ActionItem(
+                        action = action, 
+                        onEdit = { editingAction = action },
+                        onDelete = { 
+                            viewModel.deleteAction(action.id!!)
+                            onUpdate()
+                        }
+                    )
                 }
             }
         }
 
-        if (isShowAddDialog) {
+        if (isShowAddDialog || editingAction != null) {
             AddActionDialog(
-                onDismiss = { isShowAddDialog = false },
+                initialAction = editingAction,
+                onDismiss = { 
+                    isShowAddDialog = false
+                    editingAction = null
+                },
                 onSave = { text, pts, isPenalty ->
-                    viewModel.addAction(text, pts, isPenalty)
+                    if (editingAction != null) {
+                        viewModel.updateAction(editingAction!!.id!!, text, pts, isPenalty)
+                    } else {
+                        viewModel.addAction(text, pts, isPenalty)
+                    }
                     onUpdate()
                 }
             )

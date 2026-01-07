@@ -8,13 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.overtaker.app.data.model.Action
 import com.overtaker.app.ui.modifiers.defaultBlockSettings
 
 @Composable
-fun AddActionDialog(onDismiss: () -> Unit, onSave: (String, Int, Boolean) -> Unit) {
-    var text by remember { mutableStateOf("") }
-    var points by remember { mutableStateOf("0") }
-    var isPenalty by remember { mutableStateOf(false) }
+fun AddActionDialog(initialAction: Action? = null, onDismiss: () -> Unit, onSave: (String, Int, Boolean) -> Unit) {
+    var text by remember { mutableStateOf(initialAction?.text ?: "") }
+    var points by remember { mutableStateOf(initialAction?.points?.toString() ?: "0") }
+    var isPenalty by remember { mutableStateOf(initialAction?.isPenalty ?: false) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -26,7 +27,7 @@ fun AddActionDialog(onDismiss: () -> Unit, onSave: (String, Int, Boolean) -> Uni
                 .defaultBlockSettings()
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Добавить запись", style = MaterialTheme.typography.titleLarge)
+                Text(if (initialAction == null) "Добавить запись" else "Редактировать", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(

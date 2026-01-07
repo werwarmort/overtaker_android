@@ -41,6 +41,9 @@ interface ApiService {
     @POST("actions")
     suspend fun createAction(@Body action: Action): Response<Unit>
 
+    @PUT("actions/{id}")
+    suspend fun updateAction(@Path("id") id: String, @Body action: Action): Response<Unit>
+
     @DELETE("actions/{id}")
     suspend fun deleteAction(@Path("id") id: String): Response<Unit>
 

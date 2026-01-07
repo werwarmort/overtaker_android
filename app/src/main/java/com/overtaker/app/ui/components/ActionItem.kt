@@ -1,33 +1,42 @@
 package com.overtaker.app.ui.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.overtaker.app.data.model.Action
 import com.overtaker.app.ui.modifiers.defaultBlockSettings
 import java.util.Calendar
 
 @Composable
-fun ActionItem(action: Action, onDelete: () -> Unit) {
+fun ActionItem(action: Action, onEdit: () -> Unit, onDelete: () -> Unit) {
     val colorScheme = MaterialTheme.colorScheme
+    val context = LocalContext.current
     
     val isToday = run {
         val cal = Calendar.getInstance()
         val today = cal.get(Calendar.DAY_OF_YEAR)
-        val currentYear = cal.get(Calendar.YEAR)
-        
+        val year = cal.get(Calendar.YEAR)
         cal.timeInMillis = action.createdAt
-        today == cal.get(Calendar.DAY_OF_YEAR) && currentYear == cal.get(Calendar.YEAR)
+        today == cal.get(Calendar.DAY_OF_YEAR) && year == cal.get(Calendar.YEAR)
     }
     
-    val isLocked = action.todoId != null || !isToday
+    val isLinked = action.todoId != null
+    val isLocked = isLinked || !isToday
+
+    val hint = when {
+        isLinked -> "Уберите отметку о выполнении в соответствующем разделе и отредактируйте там."
+        !isToday -> "История прошлых дней не редактируется."
+        else -> null
+    }
 
     Row(
         modifier = Modifier
@@ -42,7 +51,7 @@ fun ActionItem(action: Action, onDelete: () -> Unit) {
                 text = if (action.isPenalty) "-${action.points}" else "+${action.points}",
                 color = if (action.isPenalty) colorScheme.secondary else colorScheme.tertiary,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(45.dp)
             )
             Text(
                 text = action.text,
@@ -51,9 +60,34 @@ fun ActionItem(action: Action, onDelete: () -> Unit) {
             )
         }
 
-        if (!isLocked) {
-            IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary.copy(alpha = 0.6f))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = {
+                    if (isLocked) Toast.makeText(context, hint, Toast.LENGTH_LONG).show()
+                    else onEdit()
+                }, 
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    Icons.Default.Edit, 
+                    contentDescription = null, 
+                    tint = if (isLocked) Color.Gray else colorScheme.primary.copy(alpha = 0.6f),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            IconButton(
+                onClick = {
+                    if (isLocked) Toast.makeText(context, hint, Toast.LENGTH_LONG).show()
+                    else onDelete()
+                }, 
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    Icons.Default.Close, 
+                    contentDescription = null, 
+                    tint = if (isLocked) Color.Gray else colorScheme.secondary.copy(alpha = 0.6f),
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }

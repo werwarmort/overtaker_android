@@ -52,6 +52,24 @@ class ActionsViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun updateAction(id: String, text: String, points: Int, isPenalty: Boolean) {
+        viewModelScope.launch {
+            try {
+                val updatedAction = Action(
+                    id = id,
+                    text = text,
+                    points = points,
+                    isPenalty = isPenalty,
+                    createdAt = System.currentTimeMillis() // Можно сохранять старую дату, если нужно
+                )
+                apiService.updateAction(id, updatedAction)
+                fetchActions()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun deleteAction(id: String) {
         viewModelScope.launch {
             try {
