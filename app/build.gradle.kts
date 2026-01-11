@@ -48,6 +48,17 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    // Переименование APK
+    applicationVariants.all {
+        val variant = this
+        outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "Overtaker-v${defaultConfig.versionName}-${variant.buildType.name}.apk"
+                output.outputFileName = outputFileName
+            }
+    }
 }
 
 dependencies {
