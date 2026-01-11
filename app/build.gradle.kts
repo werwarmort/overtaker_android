@@ -67,6 +67,9 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization.json)
     
+    // Cookies Support (Added for HttpOnly auth)
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
+    
     // Navigation
     implementation(libs.androidx.navigation.compose)
 

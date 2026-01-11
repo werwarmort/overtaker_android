@@ -7,28 +7,28 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import okhttp3.JavaNetCookieJar
+import java.net.CookieManager
+import java.net.CookiePolicy
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:8080/api/"
+    private const val BASE_URL = "https://overtaker.ru/api/"
 
     private val json = Json { ignoreUnknownKeys = true }
 
+    // Создаем менеджер кук один раз, чтобы он хранил сессию
+    private val cookieManager = CookieManager().apply {
+        setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+    }
+
     fun getApiService(context: Context): ApiService {
-        val sessionManager = SessionManager(context)
-        
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         val client = OkHttpClient.Builder()
+            .cookieJar(JavaNetCookieJar(cookieManager)) // Автоматическая обработка кук
             .addInterceptor(logging)
-            .addInterceptor { chain ->
-                val requestBuilder = chain.request().newBuilder()
-                sessionManager.fetchAuthToken()?.let {
-                    requestBuilder.addHeader("Authorization", "Bearer $it")
-                }
-                chain.proceed(requestBuilder.build())
-            }
             .build()
 
         return Retrofit.Builder()
