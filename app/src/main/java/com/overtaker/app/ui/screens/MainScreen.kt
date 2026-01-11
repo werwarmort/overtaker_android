@@ -3,6 +3,9 @@ package com.overtaker.app.ui.screens
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -75,6 +78,18 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                     }
                 }
             }
+        },
+        floatingActionButton = {
+            if (onAddClickAction != null) {
+                FloatingActionButton(
+                    onClick = { onAddClickAction?.invoke() },
+                    shape = CircleShape, // Делаем кнопку круглой
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                }
+            }
         }
     ) { innerPadding ->
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -87,8 +102,7 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                 GlobalHeader(
                     day = scoreViewModel.dayPoints,
                     week = scoreViewModel.weekPoints,
-                    season = scoreViewModel.seasonPoints,
-                    onAddClick = onAddClickAction
+                    season = scoreViewModel.seasonPoints
                 )
             }
 
@@ -111,13 +125,15 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                     LogsScreen(
                         viewModel = remember { ActionsViewModel(context) },
                         onUpdate = { scoreViewModel.fetchScore() },
-                        registerAddAction = { onAddClickAction = it }
+                        registerAddAction = { onAddClickAction = null }
                     )
                 }
                 composable(Screen.Analytics.route) {
+                    onAddClickAction = null
                     AnalyticsScreen(viewModel = remember { AnalyticsViewModel(context) })
                 }
                 composable(Screen.Account.route) { 
+                    onAddClickAction = null
                     AccountScreen(
                         onLogout = onLogout, 
                         isDarkTheme = isDarkTheme, 

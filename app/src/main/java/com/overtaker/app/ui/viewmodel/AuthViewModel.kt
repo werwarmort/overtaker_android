@@ -31,7 +31,8 @@ class AuthViewModel(context: Context) : ViewModel() {
                 if (isLogin) {
                     val response = apiService.login(mapOf("username" to username, "password" to password))
                     if (response.isSuccessful && response.body() != null) {
-                        sessionManager.saveAuthToken(response.body()!!.token)
+                        // Токен теперь в CookieJar. Сохраняем флаг, что мы залогинены.
+                        sessionManager.saveAuthToken("cookie_session_active")
                         isSuccess = true
                         onSuccess()
                     } else {
