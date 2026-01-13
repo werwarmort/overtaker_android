@@ -49,7 +49,6 @@ android {
         }
     }
 
-    // Переименование APK
     applicationVariants.all {
         val variant = this
         outputs
@@ -78,8 +77,8 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization.json)
     
-    // Cookies Support (Added for HttpOnly auth)
-    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.12.0")
+    // Persistent Cookie Storage (Saves login across restarts)
+    implementation("com.github.franmontiel:PersistentCookieJar:v1.0.1")
     
     // Navigation
     implementation(libs.androidx.navigation.compose)
