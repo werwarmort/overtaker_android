@@ -50,15 +50,14 @@ fun TaskItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .defaultBlockSettings(borderColor = priorityColor) // Красим бордер в цвет приоритета
+            .defaultBlockSettings(borderColor = priorityColor)
     ) {
-        // Тонкая акцентная полоска слева (как в вебе border-left: 6px)
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .width(6.dp)
                 .fillMaxHeight()
-                .padding(vertical = 8.dp) // Чуть короче высоты карточки для изящности
+                .padding(vertical = 8.dp)
                 .background(priorityColor, androidx.compose.foundation.shape.CircleShape)
         )
 
@@ -94,7 +93,7 @@ fun TaskItem(
                     )
                 }
                 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                     if (!task.isCompleted) {
                         IconButton(
                             onClick = {
@@ -103,24 +102,28 @@ fun TaskItem(
                                 } else {
                                     onEdit()
                                 }
-                            }
+                            },
+                            modifier = Modifier.size(32.dp) // Уменьшил размер кнопки
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit, 
                                 contentDescription = null, 
                                 tint = if (isLinkedToGoal) Color.Gray else colorScheme.primary, 
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
-                        IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary, modifier = Modifier.size(20.dp))
+                        IconButton(
+                            onClick = onDelete,
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null, tint = colorScheme.secondary, modifier = Modifier.size(18.dp))
                         }
                     }
                     Text(
                         text = "+${task.points}",
                         color = colorScheme.tertiary,
                         style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 }
             }

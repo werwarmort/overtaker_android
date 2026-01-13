@@ -83,7 +83,7 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
             if (onAddClickAction != null) {
                 FloatingActionButton(
                     onClick = { onAddClickAction?.invoke() },
-                    shape = CircleShape, // Делаем кнопку круглой
+                    shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
@@ -125,7 +125,7 @@ fun MainScreen(onLogout: () -> Unit, isDarkTheme: Boolean, onThemeChange: (Boole
                     LogsScreen(
                         viewModel = remember { ActionsViewModel(context) },
                         onUpdate = { scoreViewModel.fetchScore() },
-                        registerAddAction = { onAddClickAction = null }
+                        registerAddAction = { onAddClickAction = it } // Исправлено: it вместо null
                     )
                 }
                 composable(Screen.Analytics.route) {

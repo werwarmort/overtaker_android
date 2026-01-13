@@ -2,13 +2,17 @@ package com.overtaker.app.ui.components
 
 import android.os.Build
 import android.view.WindowManager
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -16,7 +20,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.overtaker.app.data.model.Goal
 import com.overtaker.app.data.model.GoalSubgoal
-import com.overtaker.app.ui.modifiers.defaultBlockSettings
 
 @Composable
 fun AddGoalDialog(
@@ -40,13 +43,17 @@ fun AddGoalDialog(
                     it.attributes.blurBehindRadius = 60
                 }
             }
+            window?.setDimAmount(0.6f)
             onDispose {}
         }
 
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .defaultBlockSettings()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                .padding(16.dp)
         ) {
             Column(
                 modifier = Modifier
