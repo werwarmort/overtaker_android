@@ -1,7 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+}
+
+// Загружаем свойства из local.properties (пароли)
+val keystorePropertiesFile = rootProject.file("local.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -21,9 +31,25 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Читаем значения из свойств, если файл существует
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["key.alias"] as String
+                keyPassword = keystoreProperties["key.password"] as String
+                storeFile = file(keystoreProperties["store.file"] as String)
+                storePassword = keystoreProperties["store.password"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Применяем конфиг только если он был успешно создан
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -77,7 +103,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization.json)
     
-    // Persistent Cookie Storage (Saves login across restarts)
+    // Cookies
     implementation("com.github.franmontiel:PersistentCookieJar:v1.0.1")
     
     // Navigation
