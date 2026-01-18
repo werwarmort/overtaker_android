@@ -112,8 +112,32 @@ class TasksViewModel(context: Context) : ViewModel() {
     fun toggleSubtask(task: Task, subtaskId: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
+                val subtask = task.subtasks.find { it.id == subtaskId } ?: return@launch
+                
+                var actionId = subtask.completedActionId
+                val newStatus = !subtask.isCompleted
+
+                if (newStatus) {
+                    val newActionId = System.currentTimeMillis().toString()
+                    val action = Action(
+                        id = newActionId,
+                        text = "Выполнена подзадача: ${subtask.description}",
+                        points = 0,
+                        isPenalty = false,
+                        createdAt = System.currentTimeMillis(),
+                        todoId = task.id.toString()
+                    )
+                    apiService.createAction(action)
+                    actionId = newActionId
+                } else {
+                    if (subtask.completedActionId != null) {
+                        apiService.deleteAction(subtask.completedActionId)
+                        actionId = null
+                    }
+                }
+
                 val updatedSubtasks = task.subtasks.map {
-                    if (it.id == subtaskId) it.copy(isCompleted = !it.isCompleted) else it
+                    if (it.id == subtaskId) it.copy(isCompleted = newStatus, completedActionId = actionId) else it
                 }
                 val updatedTask = task.copy(subtasks = updatedSubtasks)
                 apiService.updateTask(task.id!!, updatedTask)

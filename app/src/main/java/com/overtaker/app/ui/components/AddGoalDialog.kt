@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import com.overtaker.app.data.model.Goal
 import com.overtaker.app.data.model.GoalSubgoal
 
@@ -100,6 +102,11 @@ fun AddGoalDialog(
                             label = { Text("Баллы") },
                             modifier = Modifier.width(80.dp)
                         )
+                        IconButton(onClick = {
+                             subgoals = subgoals.filterIndexed { i, _ -> i != index }
+                        }) {
+                             Icon(Icons.Default.Clear, contentDescription = "Delete subgoal", tint = MaterialTheme.colorScheme.error)
+                        }
                     }
                 }
                 TextButton(onClick = {

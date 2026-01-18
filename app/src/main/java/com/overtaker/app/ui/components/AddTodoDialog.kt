@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.ui.Alignment
 import com.overtaker.app.data.model.Task
 import com.overtaker.app.data.model.Subtask
 
@@ -104,15 +107,25 @@ fun AddTodoDialog(
 
                 Text("Подзадачи", style = MaterialTheme.typography.titleSmall)
                 subtasks.forEachIndexed { index, subtask ->
-                    OutlinedTextField(
-                        value = subtask.description,
-                        onValueChange = {
-                            val newList = subtasks.toMutableList()
-                            newList[index] = newList[index].copy(description = it)
-                            subtasks = newList
-                        },
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = subtask.description,
+                            onValueChange = {
+                                val newList = subtasks.toMutableList()
+                                newList[index] = newList[index].copy(description = it)
+                                subtasks = newList
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = {
+                            subtasks = subtasks.filterIndexed { i, _ -> i != index }
+                        }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Delete subtask", tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
                 }
                 TextButton(onClick = {
                     subtasks = subtasks + Subtask(

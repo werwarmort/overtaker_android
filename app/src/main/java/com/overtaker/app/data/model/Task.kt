@@ -21,5 +21,6 @@ data class Task(
 data class Subtask(
     val id: String,
     val description: String,
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+    val completedActionId: String? = null
 )
